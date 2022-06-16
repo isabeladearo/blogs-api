@@ -1,4 +1,5 @@
 const error = require('./error');
-const validateCredentials = require('./validateCredentials');
+const validateLogin = require('./validateLogin');
+const validateCreateUser = require('./validateCreateUser');
 
-module.exports = { error, validateCredentials };
+module.exports = { error, validateLogin, validateCreateUser };

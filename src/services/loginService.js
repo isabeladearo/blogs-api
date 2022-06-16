@@ -6,8 +6,8 @@ const getToken = async ({ email, password }) => {
 
   if (!user || user.dataValues.password !== password) return false;
 
-  const token = generateToken({ name: user.dataValues.displayName });
-  
+  const token = generateToken(user.dataValues);
+
   return token;
 };
 
