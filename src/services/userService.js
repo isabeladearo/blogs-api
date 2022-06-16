@@ -1,5 +1,5 @@
 const { User } = require('../database/models');
-const { generateToken } = require('../utils/JWTToken');
+const { authJWTToken: { generateToken } } = require('../middlewares');
 
 const createUser = async ({ displayName, email, password, image }) => {
   const user = await User.findOne({ where: { email } });
@@ -13,4 +13,6 @@ const createUser = async ({ displayName, email, password, image }) => {
   return token;
 };  
 
-module.exports = { createUser };
+const getAllUsers = () => User.findAll({ attributes: { exclude: ['password'] } });
+
+module.exports = { createUser, getAllUsers };
