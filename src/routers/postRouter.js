@@ -4,6 +4,7 @@ const {
   authJWTToken: { authenticateToken },
   validateCreatePost,
   validateUpdatePost,
+  validateRemovePost,
 } = require('../middlewares');
 const { postController } = require('../controllers');
 
@@ -18,5 +19,7 @@ router.get('/', postController.getAllPosts);
 router.get('/:id', postController.getPostById);
 
 router.put('/:id', validateUpdatePost, postController.updatePost);
+
+router.delete('/:id', validateRemovePost, postController.removePost);
 
 module.exports = router;

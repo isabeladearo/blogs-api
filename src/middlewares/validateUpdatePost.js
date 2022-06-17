@@ -29,7 +29,7 @@ module.exports = async (req, res, next) => {
   const idFound = await BlogPost.findOne({ where: { id } });
 
   if (!idFound) {
-    return res.status(404).json({ message: 'Post not found' });
+    return res.status(404).json({ message: 'Post does not exist' });
   }
 
   if (req.auth.dataValues.id !== idFound.dataValues.userId) {
