@@ -14,9 +14,11 @@ router.use(authenticateToken);
 
 router.post('/', validateCreatePost, postController.createPost);
 
-router.get('/', postController.getAllPosts);
+router.get('/search', postController.getPostsBySearchTerm);
 
 router.get('/:id', postController.getPostById);
+
+router.get('/', postController.getAllPosts);
 
 router.put('/:id', validateUpdatePost, postController.updatePost);
 
