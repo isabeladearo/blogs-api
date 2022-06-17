@@ -17,4 +17,6 @@ const getAllUsers = () => User.findAll({ attributes: { exclude: ['password'] } }
 
 const getUserById = (id) => User.findOne({ where: { id }, attributes: { exclude: ['password'] } });
 
-module.exports = { createUser, getAllUsers, getUserById };
+const removeUser = (id) => User.destroy({ where: { id } });
+
+module.exports = { createUser, getAllUsers, getUserById, removeUser };

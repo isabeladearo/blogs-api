@@ -22,4 +22,10 @@ const getUserById = async (req, res) => {
   return res.status(200).json(user);
 };
 
-module.exports = { createUser, getAllUsers, getUserById };
+const removeUser = async (req, res) => {
+  await userService.removeUser(req.auth.dataValues.id);
+
+  return res.status(204).end();
+};
+
+module.exports = { createUser, getAllUsers, getUserById, removeUser };
