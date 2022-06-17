@@ -5,6 +5,7 @@ const authJWTToken = require('./authJWTToken');
 const validateCreateCategory = require('./validateCreateCategory');
 const validateCreatePost = require('./validateCreatePost');
 const validateUpdatePost = require('./validateUpdatePost');
+const validateRemovePost = require('./validateRemovePost');
 
 module.exports = {
   error,
@@ -14,4 +15,5 @@ module.exports = {
   validateCreateCategory,
   validateCreatePost,
   validateUpdatePost,
+  validateRemovePost,
 };
