@@ -3,7 +3,7 @@ const Joi = require('joi');
 const userSchema = Joi.object({
   title: Joi.string().required(),
   content: Joi.string().required(),
-  categoryIds: Joi.array().min(1).required(),
+  categoryIds: Joi.array().items(Joi.number()).min(1).required(),
 });
 
 const handleError = (error) => {

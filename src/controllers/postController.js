@@ -33,9 +33,11 @@ const updatePost = async (req, res) => {
 };
 
 const removePost = async (req, res) => {
-  await postService.removePost(req.params.id);
+  const response = await postService.removePost(req.params.id, req.auth.dataValues.id);
 
-  return res.status(204).end();
+  if (!response) return res.status(204).end();
+
+  return res.status(response.error.code).json({ message: response.error.message });
 };
 
 const getPostsBySearchTerm = async (req, res) => {
