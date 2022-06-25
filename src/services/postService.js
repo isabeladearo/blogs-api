@@ -49,7 +49,17 @@ const getPostById = (id) =>
     ],
   });
 
-const updatePost = async (id, { title, content }) => {
+const updatePost = async (id, { title, content }, { dataValues: { id: authId } }) => {
+  const idFound = await getPostById(id);
+  
+  if (!idFound) {
+    return { error: { code: 404, message: 'Post does not exist' } };
+  }
+
+  if (authId !== idFound.dataValues.userId) {
+    return { error: { code: 401, message: 'Unauthorized user' } };
+  }
+  
   await BlogPost.update(
     { title, content, updated: new Date() },
     { where: { id } },
