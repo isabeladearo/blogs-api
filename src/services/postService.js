@@ -6,35 +6,29 @@ const sequelize = new Sequelize(config.development);
 
 const { Op } = Sequelize;
 
-const {
-  BlogPost,
-  PostCategory,
-  User,
-  Category,
-} = require('../database/models');
+const { BlogPost, User, Category } = require('../database/models');
 
 const createPost = async (auth, { title, content, categoryIds }) => {
   const { id: userId } = auth.dataValues;
 
+  const { rows } = await Category.findAndCountAll({
+    where: { id: { [Op.in]: categoryIds } } });
+  
+  if (rows.length !== categoryIds.length) {
+    return { error: { code: 400, message: '"categoryIds" not found' } };
+  }
+
   try {
     const response = await sequelize.transaction(async (t) => {
-      const blogPost = await BlogPost.create(
-        { title, content, userId, published: new Date(), updated: new Date() },
-        { transaction: t },
-      );
-
-      await Promise.all(categoryIds.map((categoryId) =>
-        PostCategory.create(
-          { postId: blogPost.dataValues.id, categoryId },
-          { transaction: t },
-        )));
+      const blogPost = await BlogPost.create({ title, content, userId }, { transaction: t });
+      await blogPost.setCategories(categoryIds, { transaction: t });
 
       return blogPost;
     });
 
     return response.dataValues;
   } catch (error) {
-    return false;
+    return { error: { code: 500, message: 'Something went wrong' } };
   }
 };
 

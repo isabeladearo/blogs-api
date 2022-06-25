@@ -3,8 +3,8 @@ const { postService } = require('../services');
 const createPost = async (req, res) => {
   const blogPost = await postService.createPost(req.auth, req.body);
 
-  if (!blogPost) {
-    return res.status(500).json({ message: 'Something went wrong' });
+  if (blogPost.error) {
+    return res.status(blogPost.error.code).json({ message: blogPost.error.message });
   }
 
   return res.status(201).json(blogPost);
