@@ -11,10 +11,10 @@ const { BlogPost, User, Category } = require('../database/models');
 const createPost = async (auth, { title, content, categoryIds }) => {
   const { id: userId } = auth.dataValues;
 
-  const { rows } = await Category.findAndCountAll({
+  const categories = await Category.findAll({
     where: { id: { [Op.in]: categoryIds } } });
   
-  if (rows.length !== categoryIds.length) {
+  if (categories.length !== categoryIds.length) {
     return { error: { code: 400, message: '"categoryIds" not found' } };
   }
 
@@ -58,7 +58,19 @@ const updatePost = async (id, { title, content }) => {
   return getPostById(id);
 };
 
-const removePost = (id) => BlogPost.destroy({ where: { id } });
+const removePost = async (id, authId) => {
+  const idFound = await getPostById(id);
+
+  if (!idFound) {
+    return { error: { code: 404, message: 'Post does not exist' } };
+  }
+
+  if (authId !== idFound.dataValues.userId) {
+    return { error: { code: 401, message: 'Unauthorized user' } };
+  }
+
+  BlogPost.destroy({ where: { id } });
+};
 
 const getPostsBySearchTerm = ({ q }) => {
   if (!q) {
