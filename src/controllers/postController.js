@@ -27,7 +27,13 @@ const getPostById = async (req, res) => {
 };
 
 const updatePost = async (req, res) => {
-  const updatedBlogPost = await postService.updatePost(req.params.id, req.body);
+  const updatedBlogPost = await postService.updatePost(req.params.id, req.body, req.auth);
+
+  if (updatedBlogPost.error) {
+    return res
+      .status(updatedBlogPost.error.code)
+      .json({ message: updatedBlogPost.error.message });
+  }
 
   return res.status(200).json(updatedBlogPost);
 };
