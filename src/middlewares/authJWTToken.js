@@ -2,19 +2,11 @@ require('dotenv').config();
 
 const jwt = require('jsonwebtoken');
 
-const { User } = require('../database/models');
-
 const SECRET = process.env.JWT_SECRET;
 
 const jwtConfig = { algorithm: 'HS256' };
 
-const generateToken = (payload) => {
-  const filteredObj = Object.fromEntries(
-    Object.entries(payload).filter(([key]) => key !== 'password'),
-  );
-
-  return jwt.sign(JSON.stringify(filteredObj), SECRET, jwtConfig);
-};
+const generateToken = (payload) => jwt.sign(JSON.stringify(payload), SECRET, jwtConfig);
 
 const authenticateToken = async (req, res, next) => {
   const token = req.headers.authorization;
@@ -26,15 +18,7 @@ const authenticateToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, SECRET, jwtConfig);
 
-    const user = await User.findOne({
-      where: { displayName: decoded.displayName, email: decoded.email },
-    });
-
-    if (!user) {
-      return res.status(401).json({ message: 'Expired or invalid token' });
-    }
-
-    req.auth = user;
+    req.auth = decoded;
 
     next();
   } catch (error) {

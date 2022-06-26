@@ -7,20 +7,30 @@ const sequelize = new Sequelize(config.development);
 const { Op } = Sequelize;
 
 const { BlogPost, User, Category } = require('../database/models');
+const {
+  BAD_REQUEST,
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
+  UNAUTHORIZED,
+} = require('../utils/statusCodes');
 
-const createPost = async (auth, { title, content, categoryIds }) => {
-  const { id: userId } = auth.dataValues;
+const BLOGPOST_ASSOCIATIONS = [
+  { model: User, as: 'user', attributes: { exclude: ['password'] } },
+  { model: Category, as: 'categories', through: { attributes: [] } },
+];
 
-  const categories = await Category.findAll({
-    where: { id: { [Op.in]: categoryIds } } });
-  
+const createPost = async ({ id: userId }, { title, content, categoryIds }) => {
+  const categories = await Category.findAll({ where: { id: { [Op.in]: categoryIds } } });
+
   if (categories.length !== categoryIds.length) {
-    return { error: { code: 400, message: '"categoryIds" not found' } };
+    return { error: { code: BAD_REQUEST, message: '"categoryIds" not found' } };
   }
 
   try {
     const response = await sequelize.transaction(async (t) => {
-      const blogPost = await BlogPost.create({ title, content, userId }, { transaction: t });
+      const blogPost = await BlogPost.create(
+        { title, content, userId }, { transaction: t },
+      );
       await blogPost.setCategories(categoryIds, { transaction: t });
 
       return blogPost;
@@ -28,38 +38,28 @@ const createPost = async (auth, { title, content, categoryIds }) => {
 
     return response.dataValues;
   } catch (error) {
-    return { error: { code: 500, message: 'Something went wrong' } };
+    return {
+      error: { code: INTERNAL_SERVER_ERROR, message: 'Something went wrong' },
+    };
   }
 };
 
-const getAllPosts = () =>
-  BlogPost.findAll({
-    include: [
-      { model: User, as: 'user', attributes: { exclude: ['password'] } },
-      { model: Category, as: 'categories', through: { attributes: [] } },
-    ],
-  });
+const getAllPosts = () => BlogPost.findAll({ include: BLOGPOST_ASSOCIATIONS });
 
 const getPostById = (id) =>
-  BlogPost.findOne({
-    where: { id },
-    include: [
-      { model: User, as: 'user', attributes: { exclude: ['password'] } },
-      { model: Category, as: 'categories', through: { attributes: [] } },
-    ],
-  });
+  BlogPost.findOne({ where: { id }, include: BLOGPOST_ASSOCIATIONS });
 
-const updatePost = async (id, { title, content }, { dataValues: { id: authId } }) => {
+const updatePost = async (id, { title, content }, { id: authId }) => {
   const idFound = await getPostById(id);
-  
+
   if (!idFound) {
-    return { error: { code: 404, message: 'Post does not exist' } };
+    return { error: { code: NOT_FOUND, message: 'Post does not exist' } };
   }
 
   if (authId !== idFound.dataValues.userId) {
-    return { error: { code: 401, message: 'Unauthorized user' } };
+    return { error: { code: UNAUTHORIZED, message: 'Unauthorized user' } };
   }
-  
+
   await BlogPost.update(
     { title, content, updated: new Date() },
     { where: { id } },
@@ -72,11 +72,11 @@ const removePost = async (id, authId) => {
   const idFound = await getPostById(id);
 
   if (!idFound) {
-    return { error: { code: 404, message: 'Post does not exist' } };
+    return { error: { code: NOT_FOUND, message: 'Post does not exist' } };
   }
 
   if (authId !== idFound.dataValues.userId) {
-    return { error: { code: 401, message: 'Unauthorized user' } };
+    return { error: { code: UNAUTHORIZED, message: 'Unauthorized user' } };
   }
 
   BlogPost.destroy({ where: { id } });
@@ -88,14 +88,13 @@ const getPostsBySearchTerm = ({ q }) => {
   }
 
   return BlogPost.findAll({
-    where: { [Op.or]: [
-      { title: { [Op.like]: `%${q}%` } },
-      { content: { [Op.like]: `%${q}%` } },
-    ] },
-    include: [
-      { model: User, as: 'user', attributes: { exclude: ['password'] } },
-      { model: Category, as: 'categories', through: { attributes: [] } },
-    ],
+    where: {
+      [Op.or]: [
+        { title: { [Op.like]: `%${q}%` } },
+        { content: { [Op.like]: `%${q}%` } },
+      ],
+    },
+    include: BLOGPOST_ASSOCIATIONS,
   });
 };
 

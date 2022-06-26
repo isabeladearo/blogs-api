@@ -1,17 +1,18 @@
 const { categoriesService } = require('../services');
+const { CONFLICT, CREATED, OK } = require('../utils/statusCodes');
 
 const createCategory = async (req, res) => {
   const category = await categoriesService.createCategory(req.body);
 
-  if (!category) return res.status(409).json({ message: 'Category already registered' });
+  if (!category) return res.status(CONFLICT).json({ message: 'Category already registered' });
 
-  return res.status(201).json(category);
+  return res.status(CREATED).json(category);
 };
 
 const getAllCategories = async (_req, res) => {
   const categories = await categoriesService.getAllCategories();
 
-  return res.status(200).json(categories);
+  return res.status(OK).json(categories);
 };
 
 module.exports = { createCategory, getAllCategories };

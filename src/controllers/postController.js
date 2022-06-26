@@ -1,4 +1,5 @@
 const { postService } = require('../services');
+const { CREATED, OK, NOT_FOUND, NO_CONTENT } = require('../utils/statusCodes');
 
 const createPost = async (req, res) => {
   const blogPost = await postService.createPost(req.auth, req.body);
@@ -7,23 +8,23 @@ const createPost = async (req, res) => {
     return res.status(blogPost.error.code).json({ message: blogPost.error.message });
   }
 
-  return res.status(201).json(blogPost);
+  return res.status(CREATED).json(blogPost);
 };
 
 const getAllPosts = async (_req, res) => {
   const blogPosts = await postService.getAllPosts();
 
-  return res.status(200).json(blogPosts);
+  return res.status(OK).json(blogPosts);
 };
 
 const getPostById = async (req, res) => {
   const blogPost = await postService.getPostById(req.params.id);
 
   if (!blogPost) {
-    return res.status(404).json({ message: 'Post does not exist' });
+    return res.status(NOT_FOUND).json({ message: 'Post does not exist' });
   }
 
-  return res.status(200).json(blogPost);
+  return res.status(OK).json(blogPost);
 };
 
 const updatePost = async (req, res) => {
@@ -35,13 +36,13 @@ const updatePost = async (req, res) => {
       .json({ message: updatedBlogPost.error.message });
   }
 
-  return res.status(200).json(updatedBlogPost);
+  return res.status(OK).json(updatedBlogPost);
 };
 
 const removePost = async (req, res) => {
-  const response = await postService.removePost(req.params.id, req.auth.dataValues.id);
+  const response = await postService.removePost(req.params.id, req.auth.id);
 
-  if (!response) return res.status(204).end();
+  if (!response) return res.status(NO_CONTENT).end();
 
   return res.status(response.error.code).json({ message: response.error.message });
 };
@@ -49,7 +50,7 @@ const removePost = async (req, res) => {
 const getPostsBySearchTerm = async (req, res) => {
   const blogPosts = await postService.getPostsBySearchTerm(req.query);
 
-  return res.status(200).json(blogPosts);
+  return res.status(OK).json(blogPosts);
 };
 
 module.exports = {
