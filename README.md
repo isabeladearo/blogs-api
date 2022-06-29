@@ -1,4 +1,4 @@
-# Blogs API
+## Blogs API
 
 Essa aplicação foi um dos projetos avaliativos do módulo de backend no curso de desenvolvimento web na Trybe. 
 O objetivo foi desenvolver uma API e um banco de dados para a produção de conteúdo para um blog! 
@@ -8,7 +8,9 @@ A aplicação foi desenvolvida em `Node.js` usando o pacote `sequelize` para faz
   2. Para fazer um post, foi necessário usuário e login, portanto foi trabalhado a **relação entre** `user` e `post`; 
   3. Foi necessário a utilização de categorias para os posts, trabalhando, assim, a **relação de** `posts` para `categories` e de `categories` para `posts`.
 
-Utilize o docker para rodar o projeto:
+---
+
+## Rodando o projeto com docker:
   1. Rode os serviços `node` e `db` com o comando `docker-compose up -d --build`;
   2. A partir daqui você pode rodar o container `blogs_api` via CLI ou abri-lo no VS Code;
   3. Use o comando `docker exec -it blogs_api bash` para rodar via CLI. Ele te dará acesso ao terminal interativo do container criado pelo compose, que está rodando em segundo plano;
